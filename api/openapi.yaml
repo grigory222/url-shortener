@@ -1,0 +1,78 @@
+openapi: "3.0.3"
+
+info:
+  title: URL Shortener
+  version: "1.0"
+
+paths:
+  /shorten:
+    post:
+      summary: Shorten a URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  example: "https://example.com/some/very/long/path"
+      responses:
+        "201":
+          description: Short code created (or existing one returned)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  short_code:
+                    type: string
+                    example: "aB3_xYz1qW"
+                  short_url:
+                    type: string
+                    example: "http://localhost:8080/aB3_xYz1qW"
+        "422":
+          description: URL is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /{shortCode}:
+    get:
+      summary: Get original URL by short code
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "aB3_xYz1qW"
+      responses:
+        "200":
+          description: Original URL found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: "https://example.com/some/very/long/path"
+        "404":
+          description: Short code not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "short code not found"

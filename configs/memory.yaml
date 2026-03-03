@@ -1,0 +1,4 @@
+# In-memory storage configuration (no database needed).
+
+storage: memory
+addr: ":8080"

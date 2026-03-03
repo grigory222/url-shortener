@@ -1,0 +1,58 @@
+x-db-url: &db-url "postgres://shortener:shortener@postgres:5432/shortener?sslmode=disable"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shortener
+      POSTGRES_PASSWORD: shortener
+      POSTGRES_DB: shortener
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shortener -d shortener"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: migrate/migrate:v4.17.1
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    command:
+      ["-path=/migrations", "-database", *db-url, "up"]
+
+  app-postgres:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: *db-url
+    volumes:
+      - ./configs/postgres.yaml:/config.yaml:ro
+    command: ["-config=/config.yaml"]
+    ports:
+      - "8080:8080"
+
+  app-memory:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./configs/memory.yaml:/config.yaml:ro
+    command: ["-config=/config.yaml"]
+    ports:
+      - "8081:8080"
+    profiles:
+      - memory
+
+volumes:
+  postgres_data:

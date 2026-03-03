@@ -1,0 +1,17 @@
+with-expecter: true
+resolve-type-alias: false
+disable-version-string: true
+issue-845-fix: true
+
+packages:
+  github.com/grigory/url-shortener/internal/ports:
+    config:
+      dir: "internal/ports/mocks"
+      outpkg: "mocks"
+    interfaces:
+      Repository:
+        config:
+          filename: mock_repository.go
+      URLShortener:
+        config:
+          filename: mock_url_shortener.go

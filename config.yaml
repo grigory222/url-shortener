@@ -1,0 +1,3 @@
+storage: memory
+addr: ":8080"
+database_url: "${DATABASE_URL}"

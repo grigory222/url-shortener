@@ -1,0 +1,6 @@
+# Docker / postgres configuration.
+# DATABASE_URL is injected by docker-compose as an environment variable.
+
+storage: postgres
+addr: ":8080"
+database_url: "${DATABASE_URL}"
